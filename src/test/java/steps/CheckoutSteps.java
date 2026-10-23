@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.time.Duration;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -32,6 +34,8 @@ public class CheckoutSteps {
     private static final By LAST_NAME = By.id("last-name");
     private static final By POSTAL_CODE = By.id("postal-code");
     private static final By CONTINUE = By.id("continue");
+    private static final By CANCEL = By.id("cancel");
+    private static final By CART_CONTENTS = By.id("cart_contents_container");
     private static final By SUMMARY = By.id("checkout_summary_container");
     private static final By FINISH = By.id("finish");
     private static final By COMPLETE_HEADER = By.cssSelector("[data-test='complete-header']");
@@ -58,7 +62,9 @@ public class CheckoutSteps {
 
     private void type(By locator, String text) {
         WebElement field = visible(locator);
-        field.clear();
+        // Ctrl+A + Supr en lugar de clear(): SauceDemo es React y clear() no siempre actualiza su estado,
+        // lo que importa al corregir un campo que ya tenia texto.
+        field.sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.DELETE);
         field.sendKeys(text);
     }
 
@@ -138,7 +144,35 @@ public class CheckoutSteps {
 
     @Then("veo el mensaje de error {string}")
     public void veoError(String mensaje) {
+        // Al corregir y reintentar, el mensaje anterior sigue en pantalla un instante; se espera al nuevo.
+        try {
+            waitFor().until(ExpectedConditions.textToBe(ERROR, mensaje));
+        } catch (TimeoutException e) {
+            // assertEquals da un mensaje mas claro que el timeout
+        }
         assertEquals(mensaje, visible(ERROR).getText());
+    }
+
+    @When("corrijo el campo {string} a {string}")
+    public void corregirCampo(String campo, String valor) {
+        By locator = switch (campo) {
+            case "First Name" -> FIRST_NAME;
+            case "Last Name" -> LAST_NAME;
+            case "Zip" -> POSTAL_CODE;
+            default -> throw new IllegalArgumentException("Campo desconocido: " + campo);
+        };
+        type(locator, valor);
+    }
+
+    @When("cancelo el checkout")
+    public void cancelarCheckout() {
+        click(CANCEL);
+    }
+
+    @Then("regreso al carrito")
+    public void regresoAlCarrito() {
+        visible(CART_CONTENTS);
+        assertTrue(driver().getCurrentUrl().contains("cart.html"), "No se regreso a la pagina del carrito");
     }
 
     @Then("el Zip es {string}")
