@@ -1,0 +1,9 @@
+target/
+venv/
+.env
+.idea/
+*.iml
+.vscode/
+
+# Paper con derechos de autor (IEEE); se cita en el README en lugar de subirlo
+demoura2017.pdf
