@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+                  id="Definitions_SauceCheckout"
+                  targetNamespace="http://uabc.mx/verificacion/saucedemo">
+  <bpmn:process id="Process_SauceCheckout" name="Checkout - SauceDemo" isExecutable="false">
+    <bpmn:startEvent id="StartEvent_1" name="Usuario en vista de Carrito" />
+    <bpmn:task id="Task_1" name="Clic en boton Checkout" />
+    <bpmn:exclusiveGateway id="Gateway_1" name="Completar datos o cancelar?" />
+
+    <!-- Rama 1: Compra exitosa -->
+    <bpmn:task id="Task_2" name="Ingresar First Name, Last Name y Zip" />
+    <bpmn:task id="Task_3" name="Clic en boton Continue" />
+    <bpmn:task id="Task_4" name="Verificar resumen en Checkout Overview" />
+    <bpmn:task id="Task_5" name="Clic en boton Finish" />
+    <bpmn:task id="Task_6" name="Verificar mensaje 'Thank you for your order!'" />
+    <bpmn:endEvent id="EndEvent_1" name="Orden completada exitosamente" />
+
+    <!-- Rama 2: Formulario vacio / incompleto -->
+    <bpmn:task id="Task_7" name="Dejar campos obligatorios vacios" />
+    <bpmn:task id="Task_8" name="Clic en boton Continue" />
+    <bpmn:task id="Task_9" name="Verificar mensaje 'Error: First Name is required'" />
+    <bpmn:endEvent id="EndEvent_2" name="Bloqueo por validacion de campos" />
+
+    <!-- Rama 3: Cancelar proceso de compra -->
+    <bpmn:task id="Task_10" name="Clic en boton Cancel" />
+    <bpmn:task id="Task_11" name="Verificar retorno a la vista de Carrito" />
+    <bpmn:endEvent id="EndEvent_3" name="Checkout cancelado por usuario" />
+
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="StartEvent_1" targetRef="Task_1" />
+    <bpmn:sequenceFlow id="Flow_2" sourceRef="Task_1" targetRef="Gateway_1" />
+    
+    <!-- Flujos Rama 1 -->
+    <bpmn:sequenceFlow id="Flow_3" name="Datos completos" sourceRef="Gateway_1" targetRef="Task_2" />
+    <bpmn:sequenceFlow id="Flow_4" sourceRef="Task_2" targetRef="Task_3" />
+    <bpmn:sequenceFlow id="Flow_5" sourceRef="Task_3" targetRef="Task_4" />
+    <bpmn:sequenceFlow id="Flow_6" sourceRef="Task_4" targetRef="Task_5" />
+    <bpmn:sequenceFlow id="Flow_7" sourceRef="Task_5" targetRef="Task_6" />
+    <bpmn:sequenceFlow id="Flow_8" sourceRef="Task_6" targetRef="EndEvent_1" />
+
+    <!-- Flujos Rama 2 -->
+    <bpmn:sequenceFlow id="Flow_9" name="Datos incompletos" sourceRef="Gateway_1" targetRef="Task_7" />
+    <bpmn:sequenceFlow id="Flow_10" sourceRef="Task_7" targetRef="Task_8" />
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_8" targetRef="Task_9" />
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_9" targetRef="EndEvent_2" />
+
+    <!-- Flujos Rama 3 -->
+    <bpmn:sequenceFlow id="Flow_13" name="Cancelar" sourceRef="Gateway_1" targetRef="Task_10" />
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_10" targetRef="Task_11" />
+    <bpmn:sequenceFlow id="Flow_15" sourceRef="Task_11" targetRef="EndEvent_3" />
+  </bpmn:process>
+
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_SauceCheckout">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <omgdc:Bounds x="40" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_1_di" bpmnElement="Task_1">
+        <omgdc:Bounds x="110" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1_di" bpmnElement="Gateway_1" isMarkerVisible="true">
+        <omgdc:Bounds x="250" y="175" width="50" height="50" />
+      </bpmndi:BPMNShape>
+
+      <!-- Shapes Rama 1 -->
+      <bpmndi:BPMNShape id="Task_2_di" bpmnElement="Task_2">
+        <omgdc:Bounds x="350" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_3_di" bpmnElement="Task_3">
+        <omgdc:Bounds x="480" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_4_di" bpmnElement="Task_4">
+        <omgdc:Bounds x="610" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_5_di" bpmnElement="Task_5">
+        <omgdc:Bounds x="740" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_6_di" bpmnElement="Task_6">
+        <omgdc:Bounds x="870" y="40" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <omgdc:Bounds x="1000" y="62" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Shapes Rama 2 -->
+      <bpmndi:BPMNShape id="Task_7_di" bpmnElement="Task_7">
+        <omgdc:Bounds x="350" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_8_di" bpmnElement="Task_8">
+        <omgdc:Bounds x="480" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_9_di" bpmnElement="Task_9">
+        <omgdc:Bounds x="610" y="160" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_2_di" bpmnElement="EndEvent_2">
+        <omgdc:Bounds x="750" y="182" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Shapes Rama 3 -->
+      <bpmndi:BPMNShape id="Task_10_di" bpmnElement="Task_10">
+        <omgdc:Bounds x="350" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_11_di" bpmnElement="Task_11">
+        <omgdc:Bounds x="480" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_3_di" bpmnElement="EndEvent_3">
+        <omgdc:Bounds x="620" y="302" width="36" height="36" />
+      </bpmndi:BPMNShape>
+
+      <!-- Edges -->
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <omgdi:waypoint x="76" y="200" />
+        <omgdi:waypoint x="110" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
+        <omgdi:waypoint x="210" y="200" />
+        <omgdi:waypoint x="250" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
+        <omgdi:waypoint x="275" y="175" />
+        <omgdi:waypoint x="275" y="80" />
+        <omgdi:waypoint x="350" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_4_di" bpmnElement="Flow_4">
+        <omgdi:waypoint x="450" y="80" />
+        <omgdi:waypoint x="480" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_5_di" bpmnElement="Flow_5">
+        <omgdi:waypoint x="580" y="80" />
+        <omgdi:waypoint x="610" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
+        <omgdi:waypoint x="710" y="80" />
+        <omgdi:waypoint x="740" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_7_di" bpmnElement="Flow_7">
+        <omgdi:waypoint x="840" y="80" />
+        <omgdi:waypoint x="870" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_8_di" bpmnElement="Flow_8">
+        <omgdi:waypoint x="970" y="80" />
+        <omgdi:waypoint x="1000" y="80" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
+        <omgdi:waypoint x="300" y="200" />
+        <omgdi:waypoint x="350" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10_di" bpmnElement="Flow_10">
+        <omgdi:waypoint x="450" y="200" />
+        <omgdi:waypoint x="480" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11_di" bpmnElement="Flow_11">
+        <omgdi:waypoint x="580" y="200" />
+        <omgdi:waypoint x="610" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12_di" bpmnElement="Flow_12">
+        <omgdi:waypoint x="710" y="200" />
+        <omgdi:waypoint x="750" y="200" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13_di" bpmnElement="Flow_13">
+        <omgdi:waypoint x="275" y="225" />
+        <omgdi:waypoint x="275" y="320" />
+        <omgdi:waypoint x="350" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14_di" bpmnElement="Flow_14">
+        <omgdi:waypoint x="450" y="320" />
+        <omgdi:waypoint x="480" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15_di" bpmnElement="Flow_15">
+        <omgdi:waypoint x="580" y="320" />
+        <omgdi:waypoint x="620" y="320" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
