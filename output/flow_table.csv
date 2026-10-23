@@ -1,0 +1,6 @@
+Flujo,Ingresar usuario y contrasena,Verificar mensaje de usuario bloqueado,Agregar producto al carrito,Abrir el carrito,Iniciar checkout,Capturar datos de envio,Confirmar la orden,Verificar mensaje de agradecimiento,Verificar mensaje de error del formulario,Evento final
+F1,X,-,X,X,X,X,X,X,-,Orden completada
+F2,X,-,X,X,X,X,X,X,X,Orden completada
+F3,X,-,X,X,X,X,-,-,X,Checkout abandonado
+F4,X,-,X,X,X,X,-,-,X,Checkout abandonado
+F5,X,X,-,-,-,-,-,-,-,Acceso denegado
