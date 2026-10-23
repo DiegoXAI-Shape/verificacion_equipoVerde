@@ -53,7 +53,7 @@ escribieron en `checkout.feature` y sus pasos se implementaron con Selenium:
 
 | Archivo | Qué hace |
 |---|---|
-| `features/checkout.feature` | Escenarios en Gherkin: login válido + compra, usuario bloqueado, First Name vacío y un *Scenario Outline* con 7 códigos postales. |
+| `features/checkout.feature` | Escenarios en Gherkin, uno o más por cada fila de la tabla (tags `@F1`…`@F5`): compra completa, corrección del formulario, errores de validación, usuario bloqueado y un *Scenario Outline* con 7 códigos postales. |
 | `steps/CheckoutSteps.java` | Cada frase del `.feature` se vuelve una acción en Chrome. Localiza los elementos por `id` (`user-name`, `password`, `login-button`, `postal-code`, `continue`, `finish`…) y usa esperas explícitas (`WebDriverWait`). |
 | `steps/Hooks.java` | Abre Chrome antes de cada escenario y lo cierra al final. Si el escenario falla, guarda una captura en el reporte. |
 | `runner/RunCucumberTest.java` | Runner de JUnit Platform: ejecuta Cucumber y genera `target/cucumber-report.html`. |
@@ -141,20 +141,35 @@ En PowerShell deja las comillas alrededor de cada `-D...`. Si la consola muestra
 
 ### Pruebas (`mvn test`)
 
-**10 escenarios: 5 pasan y 5 fallan.**
+**12 escenarios: 7 pasan y 5 fallan. Los 5 flujos de la tabla tienen al menos una prueba (100%).**
 
-| Escenario | Esperado | Resultado |
-|---|---|---|
-| Login `standard_user` + checkout completo | "Thank you for your order!" | ✅ Pasa |
-| Login `locked_out_user` | "Epic sadface: Sorry, this user has been locked out." | ✅ Pasa |
-| Checkout con First Name vacío | "Error: First Name is required" | ✅ Pasa |
-| Zip `64000` (válido) | Avanza al resumen | ✅ Pasa |
-| Zip vacío | Error | ✅ Pasa |
-| Zip `A1027` (letras) | Error | ❌ SauceDemo lo acepta |
-| Zip `6400` (4 dígitos) | Error | ❌ SauceDemo lo acepta |
-| Zip `640000` (6 dígitos) | Error | ❌ SauceDemo lo acepta |
-| Zip `"   "` (solo espacios) | Error | ❌ SauceDemo lo acepta |
-| Zip `@#$%!` (símbolos) | Error | ❌ SauceDemo lo acepta |
+Un **flujo** es un camino del diagrama; un **escenario** es ese camino recorrido con datos
+concretos. Por eso hay más escenarios que filas: el camino F3 se prueba con 7 datos inválidos.
+Cada escenario lleva el tag de su fila (`@F1`…`@F5`), así que se puede correr una sola fila con
+`mvn test "-Dcucumber.filter.tags=@F2"`.
+
+| Flujo | Escenarios | Cuántos |
+|---|---|:-:|
+| F1 | Login válido + checkout completo; Zip `64000` | 2 |
+| F2 | Corregir el formulario y completar la compra | 1 |
+| F3 | First Name vacío; Zip vacío, `A1027`, `6400`, `640000`, espacios y `@#$%!` | 7 |
+| F4 | Corregir el formulario, volver a fallar y abandonar | 1 |
+| F5 | Login con `locked_out_user` | 1 |
+
+| Escenario | Flujo | Esperado | Resultado |
+|---|:-:|---|---|
+| Login `standard_user` + checkout completo | F1 | "Thank you for your order!" | ✅ Pasa |
+| Zip vacío → error → corregir a `64000` → compra | F2 | "Error: Postal Code is required" y luego "Thank you for your order!" | ✅ Pasa |
+| Checkout con First Name vacío | F3 | "Error: First Name is required" | ✅ Pasa |
+| Zip vacío → corregir → First Name vacío → Cancel | F4 | Dos errores y regreso al carrito | ✅ Pasa |
+| Login `locked_out_user` | F5 | "Epic sadface: Sorry, this user has been locked out." | ✅ Pasa |
+| Zip `64000` (válido) | F1 | Avanza al resumen | ✅ Pasa |
+| Zip vacío | F3 | "Error: Postal Code is required" | ✅ Pasa |
+| Zip `A1027` (letras) | F3 | Error | ❌ SauceDemo lo acepta |
+| Zip `6400` (4 dígitos) | F3 | Error | ❌ SauceDemo lo acepta |
+| Zip `640000` (6 dígitos) | F3 | Error | ❌ SauceDemo lo acepta |
+| Zip `"   "` (solo espacios) | F3 | Error | ❌ SauceDemo lo acepta |
+| Zip `@#$%!` (símbolos) | F3 | Error | ❌ SauceDemo lo acepta |
 
 **Defecto encontrado:** SauceDemo solo revisa que el código postal no esté vacío. No valida el
 formato, y acepta incluso un campo con puros espacios. Las 5 pruebas que fallan están bien:
@@ -164,8 +179,8 @@ detectaron un defecto real del sitio. Ejemplo de mensaje:
 DEFECTO: SauceDemo acepto el Zip invalido 'A1027' y avanzo a Checkout: Overview
 ```
 
-Las ejecuciones también muestran `Skipped: 5`: son los escenarios de `generated.feature`, que se
-excluyen por defecto porque sus métodos están vacíos (están en `junit-platform.properties`).
+Maven reporta `Tests run: 17` y `Skipped: 5`. Los 5 omitidos son los escenarios de `generated.feature`, que se
+excluyen por defecto porque sus métodos están vacíos (el filtro está en `junit-platform.properties`).
 
 ---
 
@@ -188,7 +203,7 @@ excluyen por defecto porque sus métodos están vacíos (están en `junit-platfo
 | Herramientas | Selenium + Cucumber-JVM (API `cucumber.api`, 2017) | Selenium 4.51 + Cucumber-JVM 8.0.4 + JUnit 6.1 |
 | Datos de prueba | No se abordan | Scenario Outline con partición de equivalencia y valores límite del Zip |
 | Integración continua | No se aborda | `Jenkinsfile` |
-| Resultado | Tablas verificadas a mano contra los diagramas | 5 caminos, 10 escenarios ejecutados y 1 defecto real encontrado |
+| Resultado | Tablas verificadas a mano contra los diagramas | 5 caminos, 12 escenarios (100% de los flujos cubiertos) y 1 defecto real encontrado |
 
 ---
 
